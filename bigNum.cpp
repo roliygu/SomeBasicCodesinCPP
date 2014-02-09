@@ -16,11 +16,19 @@ class bigNum{
 		int len;
 		int flag;
 		int Absolutevaluecompare(bigNum B);
+		
 	public:
+		void min(bigNum A, bigNum B);
 		bigNum(string T);
 		bigNum();
 		bigNum AbsolutevalueAdd(bigNum B);
 		bigNum AbsolutevalueMinus(bigNum B); 
+		bigNum Add(bigNum B);
+		bigNum Minus(bigNum B);
+		void power(int t);
+		bigNum mulbit(int t);
+		bigNum Mul(bigNum B);
+		bool equalzero();
 		int compare(bigNum B);
 		void StringtoNum();
 		void NumtoString();
@@ -42,8 +50,49 @@ bigNum::bigNum(const string T){
 bigNum::bigNum(){
 	flag = 1;
 	memset(number, 0, sizeof(int)*maxn);
-	s = ""; 
-	len = 0;
+	s = "0"; 
+	len = 1;
+}
+//bigNum::bigNum(bigNum B){
+//	flag=B.flag;
+//	s=B.s
+//	len=B.len;
+//	memcpy(number,B.number,sizeof(int)*maxn);
+//}
+void bigNum::min(bigNum A, bigNum B){
+	//这里默认A比B值大,且A,B都为正
+	int carrybit=0;
+	len = A.len;
+	int i = 0;
+	for(;i<A.len;i++){
+		A.number[i]-=carrybit;
+		if((A.number[i]-B.number[i])<0){
+			number[i] = A.number[i]-B.number[i]+10;
+			carrybit = 1;
+		}else{
+			number[i] = A.number[i]-B.number[i];
+			carrybit = 0;
+		}
+	} 
+	if(number[len-1]==0)len--;
+}
+bigNum bigNum::AbsolutevalueMinus(bigNum B){
+	int t = Absolutevaluecompare(B);
+	bigNum C;
+	if(t==0){
+		C.len=1;
+		C.s="0";
+		C.flag=1;
+	}else if(t==-1){
+		C.min(B, *this);
+		C.flag=-1;
+		C.NumtoString();
+	}else{
+		C.min(*this, B);
+		C.flag=1;
+		C.NumtoString();
+	}
+	return C;
 }
 int bigNum::Absolutevaluecompare(bigNum B){
 	//两个高精度数必须非负,大于返回1,小于返回-1,等于返回0 
@@ -79,6 +128,7 @@ bigNum bigNum::AbsolutevalueAdd(bigNum B){
 	}
 	C.number[maxlen] = (carrybit!=0)?carrybit:0;
 	C.len = (carrybit!=0)?maxlen+1:maxlen;
+	C.flag = 1;
 	C.NumtoString();
 	return C;
 }
@@ -93,28 +143,104 @@ void bigNum::NumtoString(){
 		s[i] = number[len-i-1]+'0';
 	}
 }
+bigNum bigNum::Add(bigNum B){
+	int f = flag*B.flag;
+	bigNum C;
+	if(f>0){		
+		C=AbsolutevalueAdd(B);
+		C.flag=flag;
+		return C;
+	}else{
+		C=AbsolutevalueMinus(B);
+		int k = Absolutevaluecompare(B);
+		if(k==0)
+			C.flag=1;
+		else if(k>0)
+			C.flag=flag;
+		else
+			C.flag=B.flag;
+		return C;
+	}
+}
+bigNum bigNum::Minus(bigNum B){
+	B.flag*=(-1);
+	bigNum C;
+	C=Add(B);
+	return C;
+}
+void bigNum::power(int t){
+	//使结果乘以10的t次方
+	if(t>=0){
+		for(int i=len-1;i>=0;i--)number[i+t]=number[i];
+		for(int i=t-1;i>=0;i--)number[i]=0;
+	}else{
+		for(int i=0;i<=len+t;i++)number[i]=number[i-t];
+	}
+	len+=t;
+	NumtoString();
+}
+bigNum bigNum::mulbit(int t){
+	bigNum C;
+	int carrybit=0;
+	for(int i=0;i<=len;i++){
+		int temp = number[i]*t;
+		temp+=carrybit;
+		C.number[i]=temp%10;
+		carrybit=temp/10;
+	}
+	if(C.number[len]!=0)C.len=len+1;
+	C.NumtoString();
+	return C;
+}
+bigNum bigNum::Mul(bigNum B){
+	bigNum C;
+	for(int i=0;i<B.len;i++){
+		bigNum D = mulbit(B.number[i]);
+		D.power(i);
+		C = C.AbsolutevalueAdd(D);
+	}
+	if(equalzero()||B.equalzero())
+		C.flag = 1;
+	else
+		C.flag=flag*B.flag;
+	return C;
+}
+bool bigNum::equalzero(){
+	if(len!=1)
+		return false;
+	else{
+		if(number[0]!=0)
+			return false;
+		else
+			return true;
+	}
+}
 void bigNum::show(){
 	if(flag==-1)
 		cout<<"s:-"<<s<<endl;
 	else 
 		cout<<"s:"<<s<<endl;
 	cout<<"len:"<<len<<endl;
+	cout<<"flag:"<<flag<<endl;
 	for(int i=0;i<len;i++)cout<<number[i];
 }
 int main(){
-	//string a = "-9998";
-	//string b = "999888";
-	//bigNum *c = new bigNum(a);
-	//bigNum *d = new bigNum(b);
-	//cout<<c->compare(*d)<<endl;
-	string a[5]={"-2","-1","0","1","2"};
-	int b[5]={-2,-1,0,1,2};
-	for(int i=0;i<5;i++){
-		for(int j=0;j<5;j++){
-			bigNum *c = new bigNum(a[i]);
-			bigNum *d = new bigNum(a[j]);
-			cout<<a[i]<<" "<<(c->compare(*d)==(intcompar(b[i], b[j])))<<" "<<a[j]<<endl;
-		}
-	}
+	string a = "9999999999999999999999999";
+	string b = "-9999999999999999999999999";
+	bigNum *c = new bigNum(a);
+	bigNum *d = new bigNum(b);
+	bigNum e = c->Mul(*d);
+	e.show();
+	
+	
+//	string a[5]={"-2","-1","0","1","2"};
+//	int b[5]={-2,-1,0,1,2};
+//	for(int i=0;i<5;i++){
+//		for(int j=0;j<5;j++){
+//			bigNum *c = new bigNum(a[i]);
+//			bigNum *d = new bigNum(a[j]);
+//			cout<<b[i]-b[j]<<endl;
+//		}
+//	}
 	return 0;
 }
