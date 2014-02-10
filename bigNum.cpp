@@ -9,14 +9,14 @@ keypoints:
 #include<string>
 using namespace std;
 #define maxn 1000
+struct Mod;
 class bigNum{
 	private:
 		string s;
 		int number[maxn];
 		int len;
 		int flag;
-		int Absolutevaluecompare(bigNum B);
-		
+		int Absolutevaluecompare(bigNum B);		
 	public:
 		void min(bigNum A, bigNum B);
 		bigNum(string T);
@@ -30,9 +30,14 @@ class bigNum{
 		bigNum Mul(bigNum B);
 		bool equalzero();
 		int compare(bigNum B);
+		Mod Division(bigNum B);
 		void StringtoNum();
 		void NumtoString();
 		void show();
+};
+struct Mod{
+	bigNum quotient;
+	bigNum remainder;
 };
 bigNum::bigNum(const string T){
 	if(T[0]=='-'){
@@ -204,6 +209,9 @@ bigNum bigNum::Mul(bigNum B){
 	else
 		C.flag=flag*B.flag;
 	return C;
+}
+Mod bigNum::Division(bigNum B){
+	
 }
 bool bigNum::equalzero(){
 	if(len!=1)
