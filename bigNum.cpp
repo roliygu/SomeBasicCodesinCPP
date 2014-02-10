@@ -211,7 +211,22 @@ bigNum bigNum::Mul(bigNum B){
 	return C;
 }
 Mod bigNum::Division(bigNum B){
-	
+	//这里应该再加一条判断B==0的异常 
+	Mod temp;
+	if(Absolutevaluecompare(B)==-1){
+		temp.remainder = *this;
+		bigNum *p = new bigNum("0");
+		temp.quotient = *p;
+	}else if(Absolutevaluecompare(B)==0){
+		bigNum *p = new bigNum("1");
+		bigNum *q = new bigNum("0");
+		temp.quotient = *p;
+		temp.remainder = *q;
+	}else{
+		//有些问题,例如正负情况不同时余数也要分情况解决 
+	}
+	temp.quotient.flag = flag*B.flag;
+	return temp;
 }
 bool bigNum::equalzero(){
 	if(len!=1)
@@ -233,12 +248,16 @@ void bigNum::show(){
 	for(int i=0;i<len;i++)cout<<number[i];
 }
 int main(){
-	string a = "9999999999999999999999999";
-	string b = "-9999999999999999999999999";
+	string a = "998";
+	string b = "999";
 	bigNum *c = new bigNum(a);
 	bigNum *d = new bigNum(b);
-	bigNum e = c->Mul(*d);
-	e.show();
+	Mod e = c->Division(*d);
+	cout<<"商:"<<endl; 
+	e.quotient.show();
+	cout<<endl;
+	cout<<"余:" <<endl;
+	e.remainder.show();
 	
 	
 //	string a[5]={"-2","-1","0","1","2"};
