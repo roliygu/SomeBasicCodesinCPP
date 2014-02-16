@@ -148,11 +148,6 @@ int main(){
 	int AA[9]={1,4,2,3};
 	ArrayOrdinal *B=new ArrayOrdinal(AA,4);
 	
-	//for(int i=0;i<=7;i++){
-//		B->OrdinalNumber=i;
-//		B->NumbertoArray();
-//		B->Showall();
-//	}
 	B->ArraytoNumber();
 	B->Showall();
 	return 0;
