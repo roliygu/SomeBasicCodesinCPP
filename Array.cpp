@@ -1,7 +1,7 @@
 #include<iostream>
 using namespace std;
 typedef int Element;
-#define maxn 1000
+#define maxn 100
 int compare(Element A, Element B){
 	//这里仅适用于int和char,另外的类型再改 
 	if(A>B)return 1;
@@ -18,10 +18,10 @@ long int Factorial(int j){
 
 class Array{
 	public:
-		Element data[maxn];
+		int data[maxn];
 		int len;
 		Array(int l);
-		Array(Element *A, int l);
+		Array(int *A, int l);
 		void Show();
 };
 Array::Array(int l){
@@ -31,9 +31,9 @@ Array::Array(int l){
 	for(int i=1;i<=len;i++)
 		data[i]=i;
 }
-Array::Array(Element *A, int l){
+Array::Array(int *A, int l){
 	len=l;
-	memcpy(data+1, A, sizeof(Element)*len);
+	memcpy(data+1, A, sizeof(int)*len);
 }
 void Array::Show(){
 	for(int i=1;i<=len;i++)
@@ -46,7 +46,7 @@ class ArrayOrdinal:public Array{
 		long int OrdinalNumber;
 		int OrdinalArray[maxn];
 		ArrayOrdinal(int l):Array(l){};
-		ArrayOrdinal(Element *A, int l):Array(A, l){};
+		ArrayOrdinal(int *A, int l):Array(A, l){};
 		void NumbertoOrdinal();
 		void OrdinaltoNumber();
 		void OrdinaltoArray();
@@ -117,43 +117,88 @@ class ArrayDictionary:public Array{
 	public:
 		void generate();
 		ArrayDictionary(int l):Array(l){};
-		ArrayDictionary(Element *A, int l):Array(A, l){};
+		ArrayDictionary(int *A, int l):Array(A, l){};
 };
 void ArrayDictionary::generate(){
 	//序列是严格递减时,保持原序列不变 
 	int m=len-1;
 	int n=0;
-	while((1==compare(data[m], data[m+1]))&&(m>=1)){
+	while((data[m]>data[m+1])&&(m>=1)){
 		m--;
 	}
 	if(m==0)return;
 	for(int i=len;i>=m;i--){
 		if(data[i]>data[m]){
-			Element temp=data[i];
+			int temp=data[i];
 			data[i]=data[m];
 			data[m]=temp;
 			break;
 		}
 	}
 	for(int i=m+1;i<=(m+len)/2;i++){
-		Element temp=data[i];
+		int temp=data[i];
 		data[i]=data[m+1+len-i];
 		data[m+1+len-i]=temp;
 	}
 }
 
+class Node{
+	//false表示方向向左,true表示向右 
+	public:
+		bool direction;
+		int data;
+		Node *next;
+		Node(int d);
+};
+Node::Node(int d){
+	data=d;
+	next=NULL;
+}
+class ArrayChange{
+	private:
+		Node *first;
+		int len;
+	public:
+		ArrayChange(int l);
+		ArrayChange(int *A, int l);
+		void Show();
+		
+};
+ArrayChange::ArrayChange(int l){
+	len=l;
+	first=new Node(0);
+	Node *p=first;
+	for(int i=1;i<=l;i++){
+		Node *temp = new Node(i);
+		p->next = temp;
+		p=p->next;
+	}
+}
+ArrayChange::ArrayChange(int *A, int l){
+	len=l;
+	first = new Node(0);
+	Node *p=first;
+	for(int i=0;i<len;i++){
+		Node *temp = new Node(A[i]);
+		p->next= temp;
+		p = p->next;
+	}
+}
+void ArrayChange::Show(){
+	for(Node *i=first->next;i->next!=NULL;i->next=i->next->next){
+		cout<<i->direction<<" ";
+	}
+	cout<<endl;
+	for(Node *i=first->next;i->next!=NULL;i->next=i->next->next){
+		cout<<i->data<<" ";
+	}
+	cout<<"\n"<<endl;
+}
 
 int main(){
 	char A[4]={'a','b','c','d'};
-	int AA[9]={1,4,2,3};
-	ArrayOrdinal *B=new ArrayOrdinal(AA,4);
-	
-	//for(int i=0;i<=7;i++){
-//		B->OrdinalNumber=i;
-//		B->NumbertoArray();
-//		B->Showall();
-//	}
-	B->ArraytoNumber();
-	B->Showall();
+	int AA[9]={1,4,2,3,5};
+	ArrayChange *B=new ArrayChange(AA,5);
+	B->Show();
 	return 0;
 }
