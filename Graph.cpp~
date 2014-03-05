@@ -1,9 +1,9 @@
-//queue ç”¨frontè·å¾—é˜Ÿé¦–å…ƒç´ ,ç„¶åtopå¼¹å‡º,æ‰èƒ½è·å¾—ç¬¬äºŒä¸ª"é˜Ÿé¦–"
-//å¼•ç”¨åšå‡½æ•°å‚æ•°,éœ€åœ¨å‡½æ•°å¤–å…ˆå¯¹å…¶èµ‹åˆå€¼,ç„¶åå‡½æ•°ä¿®æ”¹æ‰æœ‰æ•ˆ
-//vectorä¸æ˜¯æ•°æ®ç±»å‹,æ‰€ä»¥æ²¡æœ‰ vector a[10]è¿™æ ·è¡¨ç¤º10ä¸ªvectorç»„æˆæ•°ç»„çš„æ–¹å¼,åªèƒ½å†™ä½œ
+//queue ÓÃfront»ñµÃ¶ÓÊ×ÔªËØ,È»ºótopµ¯³ö,²ÅÄÜ»ñµÃµÚ¶ş¸ö"¶ÓÊ×"
+//ÒıÓÃ×öº¯Êı²ÎÊı,ĞèÔÚº¯ÊıÍâÏÈ¶ÔÆä¸³³õÖµ,È»ºóº¯ÊıĞŞ¸Ä²ÅÓĞĞ§
+//vector²»ÊÇÊı¾İÀàĞÍ,ËùÒÔÃ»ÓĞ vector a[10]ÕâÑù±íÊ¾10¸övector×é³ÉÊı×éµÄ·½Ê½,Ö»ÄÜĞ´×÷
 //vector <T> a[10] 
-//éå†vectorçš„æ‰€ç”¨å…ƒç´ ,ä½¿ç”¨t.begin(),t.end()å’Œè¿­ä»£å™¨ 
-//sort(start,end,cmp)cmp{return a<b;}æ—¶ç»“æœæ˜¯å‡åº 
+//±éÀúvectorµÄËùÓÃÔªËØ,Ê¹ÓÃt.begin(),t.end()ºÍµü´úÆ÷ 
+//sort(start,end,cmp)cmp{return a<b;}Ê±½á¹ûÊÇÉıĞò 
 
 
 #include<iostream>
@@ -13,8 +13,8 @@
 using namespace std;
 
 
-const int maxn=1024;//maxnè¡¨ç¤ºæ•°ç»„çš„æœ€å¤§è¾¹ç•Œ 
-const int Max=999999;//Maxè¡¨ç¤ºå¯èƒ½å‡ºç°çš„æœ€å¤§æ•°å€¼ 
+const int maxn=1024;//maxn±íÊ¾Êı×éµÄ×î´ó±ß½ç 
+const int Max=999999;//Max±íÊ¾¿ÉÄÜ³öÏÖµÄ×î´óÊıÖµ 
 int A[maxn][4];
 
 inline void input(int A[maxn][4], int &len){
@@ -43,7 +43,7 @@ int Set::Find(int n){
 	return S[n];
 }
 void Set::Union(int a,int b){
-	//å°†è·ŸbåŒé›†åˆçš„æ‰€æœ‰å…ƒç´ éƒ½å¹¶å…¥aé›†åˆ
+	//½«¸úbÍ¬¼¯ºÏµÄËùÓĞÔªËØ¶¼²¢Èëa¼¯ºÏ
 	int temp=S[b];
 	for(int i=1;i<=len;i++){
 		if(S[i]==temp)
@@ -57,7 +57,7 @@ void Set::show(){
 
 
 class GNode{
-	//æ­¤ä¸ºé‚»æ¥è¡¨ä¸­çš„èŠ‚ç‚¹ 
+	//´ËÎªÁÚ½Ó±íÖĞµÄ½Úµã 
 	public:
 		int end,weight;
 };
@@ -65,11 +65,11 @@ class Node{
 	public:
 		int color,d,parent;
 		Node(){
-			//Dijkstraç®—æ³•ä¸­,color=-1è¡¨ç¤ºæœªç¡®å®šåˆ°æºç‚¹æœ€çŸ­è·ç¦»çš„ç‚¹é›†
-			//,color=0è¡¨ç¤ºå·²ç¡®å®šçš„ç‚¹é›†,dè¡¨ç¤ºåˆ°æºç‚¹çš„è·ç¦»,d=-1è¡¨ç¤ºæº
-			//ç‚¹ä¸å¯è¾¾,parentè¡¨ç¤ºå•æºæœ€çŸ­è·¯å¾„çš„å‰é©±
-			//æœç´¢ä¸­,color=-1è¡¨ç¤ºå½“å‰æœªçŸ¥çš„ç‚¹,color=0è¡¨ç¤ºå½“å‰æ­£åœ¨å¤„
-			//ç†çš„ç‚¹,colo=1è¡¨ç¤ºå¤„ç†å®Œæˆçš„ç‚¹ 
+			//DijkstraËã·¨ÖĞ,color=-1±íÊ¾Î´È·¶¨µ½Ô´µã×î¶Ì¾àÀëµÄµã¼¯
+			//,color=0±íÊ¾ÒÑÈ·¶¨µÄµã¼¯,d±íÊ¾µ½Ô´µãµÄ¾àÀë,d=-1±íÊ¾Ô´
+			//µã²»¿É´ï,parent±íÊ¾µ¥Ô´×î¶ÌÂ·¾¶µÄÇ°Çı
+			//ËÑË÷ÖĞ,color=-1±íÊ¾µ±Ç°Î´ÖªµÄµã,color=0±íÊ¾µ±Ç°ÕıÔÚ´¦
+			//ÀíµÄµã,colo=1±íÊ¾´¦ÀíÍê³ÉµÄµã 
 			color=-1;
 			d=-1;
 			parent=-1;
@@ -122,7 +122,7 @@ void Graph::setupMatrix(int T[maxn][4],int len){
 	for(int i=1;i<=Vlen;i++)Matrix[i][i]=0;
 }
 void Graph::Dijkstra(int n){
-	//iè¡¨ç¤ºæºç‚¹
+	//i±íÊ¾Ô´µã
 	for(int i=1;i<=Vlen;i++){
 		VNode[i].color=-1;
 		VNode[i].d=-1;
@@ -150,7 +150,7 @@ void Graph::Dijkstra(int n){
  	}
 }
 inline int Graph::DijkstraFindAvailableShortest(int n){
-	//è¿”å›æœªç¡®å®šé›†åˆä¸­æºç‚¹æœ€è¿‘çš„å¯åˆ°è¾¾çš„ç‚¹,æ²¡æœ‰æ—¶è¿”å›-1 
+	//·µ»ØÎ´È·¶¨¼¯ºÏÖĞÔ´µã×î½üµÄ¿Éµ½´ïµÄµã,Ã»ÓĞÊ±·µ»Ø-1 
 	int t=-1,minn=maxn;
 	for(int i=1;i<=Vlen;i++){
 		if(VNode[i].color==-1&&VNode[i].d>0&&VNode[i].d<minn){
