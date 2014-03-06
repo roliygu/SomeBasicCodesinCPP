@@ -87,12 +87,15 @@ class Graph{
 		Edge ENode[maxn];		
 		queue <int> V;
 	public:	
-		int Matrix[100][100];	
+		int Matrix[100][100];
+		int networkMap[100][100];	
+		int matchMap[100][100];
 		Node VNode[maxn];
 		int Elen,Vlen;
 		void setup(int T[maxn][4],int len);
 		void setupMatrix(int T[maxn][4],int len);
 		void setupENode(int T[maxn][4],int len);
+		void topogySort();
 		void Kruskal(int T[maxn][4],int len);
 		void BFS();
 		void DFS();
@@ -100,8 +103,103 @@ class Graph{
 		void Dijkstra(int n);
 		inline int DijkstraFindAvailableShortest(int n);
 		void Floyd();
+		void setnetworkMap();
+		void setMatchMap();
+		void EdmondKarp(int start,int end);
+		bool EKPathFindBFS(int map[100][100],int *p,int *flag,int start,int end);
+		void binaryMaximumMatch();
 		void show();	
 };
+void Graph::setMatchMap(){
+	for(int i=1;i<=Vlen;i++)
+	for(int j=1;j<=Vlen;j++){
+		if(Matrix[i][j]!=Max)
+			matchMap[i+1][j+1]=Matrix[i][j];
+		else
+			matchMap[i+1][j+1]=0;
+	}
+}
+void Graph::binaryMaximumMatch(){
+	
+}
+void Graph::setnetworkMap(){
+	memcpy(networkMap,Matrix,sizeof(Matrix));
+	for(int i=0;i<=Vlen;i++)
+	for(int j=0;j<=Vlen;j++)
+	if(networkMap[i][j]==Max)networkMap[i][j]=0;
+}
+void Graph::EdmondKarp(int start,int end){
+	//最后得到的networkMap是残留网络, networkMap[i][j]表示点i到点j能通过多大
+	//的流量,源点的列和或者汇点的行和代表整个网络的最大流 
+	int p[Vlen+10],flag[Vlen+10];
+	for(int i=1;i<=6;i++){
+		for(int j=1;j<=6;j++)
+		cout<<networkMap[i][j]<<" ";
+		cout<<endl;
+	}
+	while(EKPathFindBFS(networkMap,p,flag,start,end)){
+		int minn = Max,u=end;
+		while(p[u]!=-1){
+			minn = (minn<networkMap[p[u]][u])?minn:networkMap[p[u]][u];
+			u=p[u];
+		}
+		u=end;
+		while(p[u]!=-1){
+			networkMap[p[u]][u]-=minn;
+			networkMap[u][p[u]]+=minn;
+			u=p[u];
+		}
+		cout<<"path: "; 
+		for(int i=1;i<=6;i++)cout<<p[i]<<" ";
+		cout<<endl;
+		for(int i=1;i<=6;i++){
+		for(int j=1;j<=6;j++)
+		cout<<networkMap[i][j]<<" ";
+		cout<<endl;
+	}
+	}
+}
+bool Graph::EKPathFindBFS(int map[100][100],int *p,int *flag,int start,int end){
+	memset(p+1,-1,sizeof(int)*Vlen);
+	memset(flag+1,0,sizeof(int)*Vlen);
+	queue <int>que;
+	que.push(start);
+	flag[start]=1;
+	while(!que.empty()){
+		int tempStrat = que.front();
+		if(tempStrat==end)return true;
+		que.pop();
+		for(int i=1;i<=Vlen;i++){
+			if(map[tempStrat][i]&&!flag[i]){
+				flag[i]=1;
+				p[i]=tempStrat;
+				que.push(i);
+			}
+		}
+	}
+	return false;
+}
+void Graph::topogySort(){
+	for(int i=0;i<=Vlen;i++)
+	for(int j=0;j<=Vlen;j++)
+		Matrix[i][j]=(Matrix[i][j]==1)?1:0;
+	for(int i=1;i<=Vlen;i++){
+		for(int j=1;j<=Vlen;j++){
+			if(Matrix[0][j]==0){
+				int sum=0;
+				for(int k=1;k<=Vlen;k++)sum+=Matrix[k][j];
+				if(sum==0){
+					Matrix[0][j]=1;
+					cout<<j<<" ";
+					for(int k=1;k<=Vlen;k++){
+						if(Matrix[j][k]!=0)Matrix[j][k]--;
+					}
+					break;	
+				}
+			}
+		}
+	}
+}
 void Graph::Floyd(){
 	for(int k=1;k<=Vlen;k++){
 		for(int i=1;i<=Vlen;i++)
@@ -111,12 +209,14 @@ void Graph::Floyd(){
 	}
 }
 void Graph::setupMatrix(int T[maxn][4],int len){
-	memset(Matrix,Max,sizeof(int)*10000);
+	for(int i=0;i<100;i++)
+	for(int j=0;j<100;j++)
+	Matrix[i][j]=Max;
 	Elen=len;
 	int maxx=-1;
 	for(int i=1;i<=len;i++){
 		Matrix[T[i][0]][T[i][1]]=T[i][2];
-		if(T[i][0]>maxx)maxx=T[i][0];
+		if(T[i][1]>maxx)maxx=T[i][1];
 	}
 	Vlen=maxx;
 	for(int i=1;i<=Vlen;i++)Matrix[i][i]=0;
@@ -162,14 +262,12 @@ inline int Graph::DijkstraFindAvailableShortest(int n){
 		VNode[t].color=0;
 	return t;
 }
-bool cmp(Edge a,Edge b){
-	return a.w<b.w;
-}
+
 void Graph::setupENode(int T[maxn][4],int len){
 	Elen=len;
 	int maxx=-1;
 	for(int i=1;i<=len;i++){
-		if(T[i][0]>maxx)maxx=T[i][0];
+		if(T[i][1]>maxx)maxx=T[i][1];
 		ENode[i].a=T[i][0];
 		ENode[i].b=T[i][1];
 		ENode[i].w=T[i][2];
@@ -198,7 +296,7 @@ void Graph::setup(int T[maxn][4],int len){
 	int maxx=-1;
 	for(int i=1;i<=len;i++){
 		int start = T[i][0];
-		if(start>maxx)maxx=start;
+		if(T[i][1]>maxx)maxx=T[i][1];
 		GNode e;
 		e.end=T[i][1];
 		e.weight=T[i][2];
@@ -249,19 +347,21 @@ void Graph::show(){
 		cout<<endl;	
 	}
 }
-
+bool cmp(Edge a,Edge b){
+	return a.w<b.w;
+}
 
 int main(){	
 	int len=0;
 	input(A,len);
 	Graph T;
 	T.setupMatrix(A,len);
-	T.Floyd();
-	for(int i=1;i<=T.Vlen;i++){
-		for(int j=1;j<=T.Vlen;j++)
-		cout<<T.Matrix[i][j]<<" ";
+	T.setnetworkMap();
+	T.EdmondKarp(1,6);
+	for(int i=1;i<=6;i++){
+		for(int j=1;j<=6;j++)
+		cout<<T.networkMap[i][j]<<" ";
 		cout<<endl;
 	}
-	
 	return 0;
 }
