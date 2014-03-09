@@ -1,9 +1,9 @@
-//queue ç”¨frontè·å¾—é˜Ÿé¦–å…ƒç´ ,ç„¶åtopå¼¹å‡º,æ‰èƒ½è·å¾—ç¬¬äºŒä¸ª"é˜Ÿé¦–"
-//å¼•ç”¨åšå‡½æ•°å‚æ•°,éœ€åœ¨å‡½æ•°å¤–å…ˆå¯¹å…¶èµ‹åˆå€¼,ç„¶åå‡½æ•°ä¿®æ”¹æ‰æœ‰æ•ˆ
-//vectorä¸æ˜¯æ•°æ®ç±»å‹,æ‰€ä»¥æ²¡æœ‰ vector a[10]è¿™æ ·è¡¨ç¤º10ä¸ªvectorç»„æˆæ•°ç»„çš„æ–¹å¼,åªèƒ½å†™ä½œ
+//queue ÓÃfront»ñµÃ¶ÓÊ×ÔªËØ,È»ºótopµ¯³ö,²ÅÄÜ»ñµÃµÚ¶ş¸ö"¶ÓÊ×"
+//ÒıÓÃ×öº¯Êı²ÎÊı,ĞèÔÚº¯ÊıÍâÏÈ¶ÔÆä¸³³õÖµ,È»ºóº¯ÊıĞŞ¸Ä²ÅÓĞĞ§
+//vector²»ÊÇÊı¾İÀàĞÍ,ËùÒÔÃ»ÓĞ vector a[10]ÕâÑù±íÊ¾10¸övector×é³ÉÊı×éµÄ·½Ê½,Ö»ÄÜĞ´×÷
 //vector <T> a[10] 
-//éå†vectorçš„æ‰€ç”¨å…ƒç´ ,ä½¿ç”¨t.begin(),t.end()å’Œè¿­ä»£å™¨ 
-//sort(start,end,cmp)cmp{return a<b;}æ—¶ç»“æœæ˜¯å‡åº 
+//±éÀúvectorµÄËùÓÃÔªËØ,Ê¹ÓÃt.begin(),t.end()ºÍµü´úÆ÷ 
+//sort(start,end,cmp)cmp{return a<b;}Ê±½á¹ûÊÇÉıĞò 
 
 
 #include<iostream>
@@ -13,9 +13,9 @@
 using namespace std;
 
 
-const int EMax=1024;//EMaxè¡¨ç¤ºæ•°ç»„çš„æœ€å¤§è¾¹ç•Œ 
+const int EMax=1024;//EMax±íÊ¾Êı×éµÄ×î´ó±ß½ç 
 const int VMax=200;
-const int Max=999999;//Maxè¡¨ç¤ºå¯èƒ½å‡ºç°çš„æœ€å¤§æ•°å€¼ 
+const int Max=999999;//Max±íÊ¾¿ÉÄÜ³öÏÖµÄ×î´óÊıÖµ 
 int A[EMax][4];
 
 class Set{
@@ -36,7 +36,7 @@ int Set::Find(int n){
 	return S[n];
 }
 void Set::Union(int a,int b){
-	//å°†è·ŸbåŒé›†åˆçš„æ‰€æœ‰å…ƒç´ éƒ½å¹¶å…¥aé›†åˆ
+	//½«¸úbÍ¬¼¯ºÏµÄËùÓĞÔªËØ¶¼²¢Èëa¼¯ºÏ
 	int temp=S[b];
 	for(int i=1;i<=len;i++){
 		if(S[i]==temp)
@@ -50,7 +50,7 @@ void Set::show(){
 
 
 class GNode{
-	//æ­¤ä¸ºé‚»æ¥è¡¨ä¸­çš„èŠ‚ç‚¹ 
+	//´ËÎªÁÚ½Ó±íÖĞµÄ½Úµã 
 	public:
 		int end,weight;
 };
@@ -58,11 +58,11 @@ class Node{
 	public:
 		int color,d,parent;
 		Node(){
-			//Dijkstraç®—æ³•ä¸­,color=-1è¡¨ç¤ºæœªç¡®å®šåˆ°æºç‚¹æœ€çŸ­è·ç¦»çš„ç‚¹é›†
-			//,color=0è¡¨ç¤ºå·²ç¡®å®šçš„ç‚¹é›†,dè¡¨ç¤ºåˆ°æºç‚¹çš„è·ç¦»,d=-1è¡¨ç¤ºæº
-			//ç‚¹ä¸å¯è¾¾,parentè¡¨ç¤ºå•æºæœ€çŸ­è·¯å¾„çš„å‰é©±
-			//æœç´¢ä¸­,color=-1è¡¨ç¤ºå½“å‰æœªçŸ¥çš„ç‚¹,color=0è¡¨ç¤ºå½“å‰æ­£åœ¨å¤„
-			//ç†çš„ç‚¹,color=1è¡¨ç¤ºå¤„ç†å®Œæˆçš„ç‚¹ 
+			//DijkstraËã·¨ÖĞ,color=-1±íÊ¾Î´È·¶¨µ½Ô´µã×î¶Ì¾àÀëµÄµã¼¯
+			//,color=0±íÊ¾ÒÑÈ·¶¨µÄµã¼¯,d±íÊ¾µ½Ô´µãµÄ¾àÀë,d=-1±íÊ¾Ô´
+			//µã²»¿É´ï,parent±íÊ¾µ¥Ô´×î¶ÌÂ·¾¶µÄÇ°Çı
+			//ËÑË÷ÖĞ,color=-1±íÊ¾µ±Ç°Î´ÖªµÄµã,color=0±íÊ¾µ±Ç°ÕıÔÚ´¦
+			//ÀíµÄµã,color=1±íÊ¾´¦ÀíÍê³ÉµÄµã 
 			color=-1;
 			d=-1;
 			parent=-1;
@@ -96,7 +96,7 @@ class Graph{
 		inline void IMatrix2ENode();
 		inline void IENode2ENode();
 		inline void IENode2Matrix();
-		void setup();//æ„é€ æˆé‚»æ¥è¡¨	
+		void setup();//¹¹Ôì³ÉÁÚ½Ó±í	
 		void topogySort();
 		void Kruskal(int T[EMax][4],int len);
 		void BFS();
@@ -117,14 +117,14 @@ bool cmp(Edge a,Edge b){
 	return a.w<b.w;
 }
 inline void Graph::inputIMatrix(int len){
-	//è¿™é‡Œçš„lenè¡¨ç¤ºç‚¹çš„ä¸ªæ•°,ç‚¹ä¹‹é—´æ— è¾¹ç”¨0è¡¨ç¤º
+	//ÕâÀïµÄlen±íÊ¾µãµÄ¸öÊı,µãÖ®¼äÎŞ±ßÓÃ0±íÊ¾
 	Vlen=len;
 	for(int i=1;i<=len;i++)
 		for(int j=1;j<=len;j++)
 			cin>>IMatrix[i][j];	
 }
 inline void Graph::inputIENode(int len){
-	//lenè¡¨ç¤ºè¾¹çš„æ¡æ•°
+	//len±íÊ¾±ßµÄÌõÊı
 	Elen=len;
 	int maxx=-1;
 	for(int i=1;i<=len;i++){
@@ -135,7 +135,7 @@ inline void Graph::inputIENode(int len){
 	Vlen=maxx;
 }
 inline void Graph::IMatrix2Matrix(){
-	//æ²¡æœ‰è¾¹çš„å€¼ä¸º0
+	//Ã»ÓĞ±ßµÄÖµÎª0
 	int k=0;
 	for(int i=1;i<=Vlen;i++)
 		for(int j=1;j<=Vlen;j++){
@@ -145,8 +145,8 @@ inline void Graph::IMatrix2Matrix(){
 	Elen=k;
 }
 inline void Graph::IMatrix2ENode(){
-	//ä½¿ç”¨æ­¤å‡½æ•°ä¹‹å‰ä¸€å®šè¦ç¡®è®¤é‚»æ¥çŸ©é˜µä¸­ä»€ä¹ˆå€¼ä»£è¡¨æœ‰è¾¹,
-	//è¿™é‡Œé»˜è®¤0è¡¨ç¤ºæ²¡æœ‰è¾¹,é0å€¼(åŒ…æ‹¬è´Ÿæ•°)ä»£è¡¨è¾¹ä¸Šæƒå€¼
+	//Ê¹ÓÃ´Ëº¯ÊıÖ®Ç°Ò»¶¨ÒªÈ·ÈÏÁÚ½Ó¾ØÕóÖĞÊ²Ã´Öµ´ú±íÓĞ±ß,
+	//ÕâÀïÄ¬ÈÏ0±íÊ¾Ã»ÓĞ±ß,·Ç0Öµ(°üÀ¨¸ºÊı)´ú±í±ßÉÏÈ¨Öµ
 	int k=1;
 	for(int i=1;i<=Vlen;i++)
 		for(int j=1;j<=Vlen;j++)
@@ -168,8 +168,8 @@ inline void Graph::IENode2ENode(){
 	}
 }
 inline void Graph::IENode2Matrix(){
-	//å¦‚æœç‚¹é—´æ²¡æœ‰è¾¹,åˆ™å°†å…¶çŸ©é˜µå€¼è®¾ä¸º0,
-	//å¯¹è§’çº¿å€¼ä¸º0,å…¶ä»–å€¼æ ¹æ®è¾“å…¥çš„è¾¹é›†ç¡®å®š
+	//Èç¹ûµã¼äÃ»ÓĞ±ß,Ôò½«Æä¾ØÕóÖµÉèÎª0,
+	//¶Ô½ÇÏßÖµÎª0,ÆäËûÖµ¸ù¾İÊäÈëµÄ±ß¼¯È·¶¨
 	for(int i=0;i<VMax;i++)
 	for(int j=0;j<VMax;j++)
 		Matrix[i][j]=0;
@@ -191,16 +191,16 @@ void Graph::setup(){
 	}
 }
 void Graph::topogySort(){
-	//é€šè¿‡é‚»æ¥çŸ©é˜µæ‹“æ‰‘æ’åº,æœ‰å‘æ— ç¯å›¾;
+	//Í¨¹ıÁÚ½Ó¾ØÕóÍØÆËÅÅĞò,ÓĞÏòÎŞ»·Í¼;
 	for(int i=1;i<=Vlen;i++)
 		for(int j=1;j<=Vlen;j++)
-			//è¿™é‡Œå°†æœ‰å‘è¾¹å€¼(ä¸ç®¡æƒå€¼æ˜¯å¤šå°‘)è®¾ç½®ä¸º1,é‚»æ¥çŸ©é˜µä¸­æ²¡æœ‰è¾¹çš„è®¾ç½®ä¸º0
+			//ÕâÀï½«ÓĞÏò±ßÖµ(²»¹ÜÈ¨ÖµÊÇ¶àÉÙ)ÉèÖÃÎª1,ÁÚ½Ó¾ØÕóÖĞÃ»ÓĞ±ßµÄÉèÖÃÎª0
 			Matrix[i][j]=(Matrix[i][j]==0)?0:1;	
 	for(int i=1;i<=Vlen;i++)
-		//Matrix[0][i]æ˜¯æ ‡å¿—ä½,æ ‡è®°äº†æ˜¯å¦å·²ç»ä»å›¾ä¸­å»æ‰ç‚¹i,0è¡¨ç¤ºæœªå»æ‰,1è¡¨ç¤ºå·²å»æ‰;
+		//Matrix[0][i]ÊÇ±êÖ¾Î»,±ê¼ÇÁËÊÇ·ñÒÑ¾­´ÓÍ¼ÖĞÈ¥µôµãi,0±íÊ¾Î´È¥µô,1±íÊ¾ÒÑÈ¥µô;
 		Matrix[0][i]=0;
 	for(int i=1;i<=Vlen;i++){
-		//å½“å‰è¦åˆ é™¤çš„ç‚¹æ˜¯ç¬¬iä¸ªç‚¹
+		//µ±Ç°ÒªÉ¾³ıµÄµãÊÇµÚi¸öµã
 		for(int j=1;j<=Vlen;j++){
 			if(Matrix[0][j]==0){
 				int sum=0;
@@ -236,8 +236,8 @@ void Graph::setnetworkMap(){
 	if(networkMap[i][j]==Max)networkMap[i][j]=0;
 }
 void Graph::EdmondKarp(int start,int end){
-	//æœ€åå¾—åˆ°çš„networkMapæ˜¯æ®‹ç•™ç½‘ç»œ, networkMap[i][j]è¡¨ç¤ºç‚¹iåˆ°ç‚¹jèƒ½é€šè¿‡å¤šå¤§
-	//çš„æµé‡,æºç‚¹çš„åˆ—å’Œæˆ–è€…æ±‡ç‚¹çš„è¡Œå’Œä»£è¡¨æ•´ä¸ªç½‘ç»œçš„æœ€å¤§æµ 
+	//×îºóµÃµ½µÄnetworkMapÊÇ²ĞÁôÍøÂç, networkMap[i][j]±íÊ¾µãiµ½µãjÄÜÍ¨¹ı¶à´ó
+	//µÄÁ÷Á¿,Ô´µãµÄÁĞºÍ»òÕß»ãµãµÄĞĞºÍ´ú±íÕû¸öÍøÂçµÄ×î´óÁ÷ 
 	int p[Vlen+10],flag[Vlen+10];
 	for(int i=1;i<=6;i++){
 		for(int j=1;j<=6;j++)
@@ -297,7 +297,7 @@ void Graph::Floyd(){
 }
 
 void Graph::Dijkstra(int n){
-	//iè¡¨ç¤ºæºç‚¹
+	//i±íÊ¾Ô´µã
 	for(int i=1;i<=Vlen;i++){
 		VNode[i].color=-1;
 		VNode[i].d=-1;
@@ -325,7 +325,7 @@ void Graph::Dijkstra(int n){
  	}
 }
 inline int Graph::DijkstraFindAvailableShortest(int n){
-	//è¿”å›æœªç¡®å®šé›†åˆä¸­æºç‚¹æœ€è¿‘çš„å¯åˆ°è¾¾çš„ç‚¹,æ²¡æœ‰æ—¶è¿”å›-1 
+	//·µ»ØÎ´È·¶¨¼¯ºÏÖĞÔ´µã×î½üµÄ¿Éµ½´ïµÄµã,Ã»ÓĞÊ±·µ»Ø-1 
 	int t=-1,minn=EMax;
 	for(int i=1;i<=Vlen;i++){
 		if(VNode[i].color==-1&&VNode[i].d>0&&VNode[i].d<minn){
