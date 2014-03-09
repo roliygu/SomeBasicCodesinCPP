@@ -80,9 +80,9 @@ class Edge{
 class Graph{
 	private:
 		int Elen,Vlen;
-		Node VNode[EMax];
+		Node VNode[VMax];
 		Edge ENode[EMax];	
-		vector <GNode> map[EMax];		
+		vector <GNode> map[VMax];		
 		int Matrix[VMax][VMax];
 		int networkMap[VMax][VMax];	
 		int matchMap[VMax][VMax];
@@ -97,11 +97,11 @@ class Graph{
 		inline void IENode2ENode();
 		inline void IENode2Matrix();
 		void setup();//构造成邻接表	
-		void topogySort();
-		void Kruskal(int T[EMax][4],int len);
 		void BFS();
 		void DFS();
 		void SubDFS(int i);
+		void topogySort();
+		void Kruskal();
 		void Dijkstra(int n);
 		inline int DijkstraFindAvailableShortest(int n);
 		void Floyd();
@@ -120,8 +120,9 @@ inline void Graph::inputIMatrix(int len){
 	//这里的len表示点的个数,点之间无边用0表示
 	Vlen=len;
 	for(int i=1;i<=len;i++)
-		for(int j=1;j<=len;j++)
+		for(int j=1;j<=len;j++){
 			cin>>IMatrix[i][j];	
+		}
 }
 inline void Graph::inputIENode(int len){
 	//len表示边的条数
@@ -131,6 +132,7 @@ inline void Graph::inputIENode(int len){
 		cin>>IENode[i].a>>IENode[i].b>>IENode[i].w;
 		IENode[i].select=false;
 		if(IENode[i].b>maxx)maxx=IENode[i].b;
+		if(IENode[i].a>maxx)maxx=IENode[i].a;
 	}
 	Vlen=maxx;
 }
@@ -173,12 +175,9 @@ inline void Graph::IENode2Matrix(){
 	for(int i=0;i<VMax;i++)
 	for(int j=0;j<VMax;j++)
 		Matrix[i][j]=0;
-	int maxx=-1;
 	for(int i=1;i<=Elen;i++){
 		Matrix[IENode[i].a][IENode[i].b]=IENode[i].w;
-		if(IENode[i].b>maxx)maxx=IENode[i].b;
 	}
-	Vlen=maxx;
 	for(int i=1;i<=Vlen;i++)Matrix[i][i]=0;
 }
 void Graph::setup(){
@@ -188,6 +187,39 @@ void Graph::setup(){
 		e.end=IENode[i].b;
 		e.weight=IENode[i].w;
 		map[start].push_back(e);
+	}
+}
+void Graph::BFS(){
+	for(int i=1;i<=Vlen;i++)VNode[i].color=-1;
+	V.push(1);
+	while(V.size()!=0){
+		int i = V.front();
+		V.pop();
+		cout<<i<<" ";
+		for(vector <GNode>::iterator j=map[i].begin();j<map[i].end();j++){
+			int temp = (*j).end;
+			if(VNode[temp].color==-1){
+				V.push(temp);
+				VNode[temp].color=0;
+			}		
+		}
+		VNode[i].color=1;
+	}
+}
+void Graph::DFS(){
+	for(int i=1;i<=Vlen;i++)VNode[i].color=-1;
+	for(int i=1;i<=Vlen;i++){
+		if(VNode[i].color==-1)
+			SubDFS(i);
+	}
+}
+void Graph::SubDFS(int i){
+	cout<<i<<" ";
+	VNode[i].color=0;
+	for(vector <GNode>::iterator j=map[i].begin();j<map[i].end();j++){
+		if(VNode[(*j).end].color==-1)
+			SubDFS((*j).end);
+		VNode[(*j).end].color=1;
 	}
 }
 void Graph::topogySort(){
@@ -214,6 +246,23 @@ void Graph::topogySort(){
 					break;	
 				}
 			}
+		}
+	}
+}
+void Graph::Kruskal(){
+	//无向图
+	int k=0;
+	sort(ENode+1,ENode+Elen+1,cmp);
+	Set tem(Vlen); 
+	for(int i=1;i<=Elen;i++){
+		if(k==(Vlen-1))return;
+		int x = tem.Find(ENode[i].a);
+		int y = tem.Find(ENode[i].b);
+		if(x!=y){
+			tem.Union(x,y);
+			k++;
+			ENode[i].select=true;
+			cout<<'('<<ENode[i].a<<' '<<ENode[i].b<<')'<<endl;
 		}
 	}
 }
@@ -297,16 +346,14 @@ void Graph::Floyd(){
 }
 
 void Graph::Dijkstra(int n){
-	//i表示源点
-	for(int i=1;i<=Vlen;i++){
-		VNode[i].color=-1;
-		VNode[i].d=-1;
-		VNode[i].parent=-1;
-	}		
+	//得到源点n到其他各点的最短距离和路径	
 	VNode[n].color=0;
 	VNode[n].d=0;
-	for(vector <GNode>::iterator j=map[n].begin();j<map[n].end();j++)
+	for(vector <GNode>::iterator j=map[n].begin();j<map[n].end();j++){
+		//用邻接表将与源点直接相连的点距离刷新 
 		VNode[(*j).end].d=(*j).weight;
+		VNode[(*j).end].parent=n;
+	}		
 	int t =DijkstraFindAvailableShortest(n);
  	while(t!=-1){
  		for(vector <GNode>::iterator j=map[t].begin();j<map[t].end();j++){
@@ -326,7 +373,7 @@ void Graph::Dijkstra(int n){
 }
 inline int Graph::DijkstraFindAvailableShortest(int n){
 	//返回未确定集合中源点最近的可到达的点,没有时返回-1 
-	int t=-1,minn=EMax;
+	int t=-1,minn=Max;
 	for(int i=1;i<=Vlen;i++){
 		if(VNode[i].color==-1&&VNode[i].d>0&&VNode[i].d<minn){
 			minn=VNode[i].d;
@@ -336,55 +383,6 @@ inline int Graph::DijkstraFindAvailableShortest(int n){
 	if(t!=-1)
 		VNode[t].color=0;
 	return t;
-}
-void Graph::Kruskal(int T[EMax][4],int len){
-	int k=0;
-	sort(ENode+1,ENode+len+1,cmp);
-	Set *tem=new Set(Vlen); 
-	for(int i=1;i<=Elen;i++){
-		if(k==(Vlen-1))return;
-		int x = tem->Find(ENode[i].a);
-		int y = tem->Find(ENode[i].b);
-		if(x!=y){
-			tem->Union(x,y);
-			k++;
-			ENode[i].select=true;
-		}
-	}
-}
-
-void Graph::BFS(){
-	for(int i=1;i<=Vlen;i++)VNode[i].color=-1;
-	V.push(1);
-	while(V.size()!=0){
-		int i = V.front();
-		V.pop();
-		cout<<i<<" ";
-		for(vector <GNode>::iterator j=map[i].begin();j<map[i].end();j++){
-			int temp = (*j).end;
-			if(VNode[temp].color==-1){
-				V.push(temp);
-				VNode[temp].color=0;
-			}		
-		}
-		VNode[i].color=1;
-	}
-}
-void Graph::DFS(){
-	for(int i=1;i<=Vlen;i++)VNode[i].color=-1;
-	for(int i=1;i<=Vlen;i++){
-		if(VNode[i].color==-1)
-			SubDFS(i);
-	}
-}
-void Graph::SubDFS(int i){
-	cout<<i<<" ";
-	VNode[i].color=0;
-	for(vector <GNode>::iterator j=map[i].begin();j<map[i].end();j++){
-		if(VNode[(*j).end].color==-1)
-			SubDFS((*j).end);
-		VNode[(*j).end].color=1;
-	}
 }
 void Graph::show(){
 	cout<<"Vlen:"<<Vlen<<endl;
@@ -396,30 +394,37 @@ void Graph::show(){
 //		cout<<endl;
 //	}
 //	cout<<endl;
-	cout<<"Matirix:"<<endl;
-	for(int i=1;i<=Vlen;i++){
-		for(int j=1;j<=Vlen;j++)
-			cout<<Matrix[i][j]<<" ";
-		cout<<endl;
-	}
-	cout<<endl;
-	cout<<"IENode:"<<endl;
-	for(int i=1;i<=Elen;i++){
-		IENode[i].show();
-	}
-	cout<<endl;
-	cout<<"ENode:"<<endl;
-	for(int i=1;i<=Elen;i++){
-		ENode[i].show();
-	}
-	cout<<endl;
+//	cout<<"Matirix:"<<endl;
+//	for(int i=1;i<=Vlen;i++){
+//		for(int j=1;j<=Vlen;j++)
+//			cout<<Matrix[i][j]<<" ";
+//		cout<<endl;
+//	}
+//	cout<<endl;
+//	cout<<"IENode:"<<endl;
+//	for(int i=1;i<=Elen;i++){
+//		IENode[i].show();
+//	}
+//	cout<<endl;
+//	cout<<"ENode:"<<endl;
+//	for(int i=1;i<=Elen;i++){
+//		ENode[i].show();
+//	}
+//	cout<<endl;
+for(int i=1;i<=Vlen;i++)
+cout<<VNode[i].d<<" ";
+cout<<endl;
+for(int i=1;i<=Vlen;i++)
+cout<<VNode[i].parent<<" ";
+cout<<endl;
 }
 int main(){	
 	int len;
 	cin>>len;
 	Graph a;
 	a.inputIENode(len);
-	a.IENode2Matrix();
-	a.topogySort();
+	a.setup();
+	a.Dijkstra(1);
+	a.show();
 	return 0;
 }
