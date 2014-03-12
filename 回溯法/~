@@ -1,0 +1,21 @@
+#include<iostream>
+using namespace std;
+class test{
+	public:
+		int a;
+		void F(int i);
+		test(){a=1;};
+};
+void test::F(int a){
+	if(5==a)
+		return;
+	else{
+		F(++a);
+	}
+}
+int main(){
+	test A;
+	A.F(5);
+	cout<<A.a<<endl;
+	return 0;
+}
