@@ -7,7 +7,8 @@
 
 
 #include<iostream>
-#include<vector>
+#include<list>
+#include<set>
 #include<queue>
 #include<algorithm>
 using namespace std;
@@ -80,9 +81,10 @@ class Edge{
 class Graph{
 	private:
 		int Elen,Vlen;
+		bool direction;//0表示无向图,1表示有向图 
 		Node VNode[VMax];
 		Edge ENode[EMax];	
-		vector <GNode> map[VMax];		
+		list <GNode> map[VMax];		
 		int Matrix[VMax][VMax];
 		int networkMap[VMax][VMax];	
 		int matchMap[VMax][VMax];
@@ -91,11 +93,12 @@ class Graph{
 		int IMatrix[VMax][VMax];
 		Edge IENode[EMax];
 		inline void inputIMatrix(int len);		
-		inline void inputIENode(int len);
+		inline void inputIENode(int len,int dic);
 		inline void IMatrix2Matrix();
 		inline void IMatrix2ENode();
 		inline void IENode2ENode();
 		inline void IENode2Matrix();
+		inline int calVNodeNum(Edge A[EMax],int len);
 		void setup();//构造成邻接表	
 		void BFS();
 		void DFS();
@@ -116,6 +119,14 @@ bool cmp(Edge a,Edge b){
 
 	return a.w<b.w;
 }
+inline int Graph::calVNodeNum(Edge A[EMax],int len){
+	set<int> V;
+	for(int i=1;i<=len;i++){
+		V.insert(A[i].a);
+		V.insert(A[i].b);
+	}
+	return V.size();
+}
 inline void Graph::inputIMatrix(int len){
 	//这里的len表示点的个数,点之间无边用0表示
 	Vlen=len;
@@ -124,17 +135,16 @@ inline void Graph::inputIMatrix(int len){
 			cin>>IMatrix[i][j];	
 		}
 }
-inline void Graph::inputIENode(int len){
-	//len表示边的条数
+inline void Graph::inputIENode(int len,int dic=1){
+	//len表示边的条数,默认dic为1,也就是有向图 
 	Elen=len;
+	direction = dic;
 	int maxx=-1;
 	for(int i=1;i<=len;i++){
 		cin>>IENode[i].a>>IENode[i].b>>IENode[i].w;
 		IENode[i].select=false;
-		if(IENode[i].b>maxx)maxx=IENode[i].b;
-		if(IENode[i].a>maxx)maxx=IENode[i].a;
 	}
-	Vlen=maxx;
+	Vlen=calVNodeNum(IENode,Elen);
 }
 inline void Graph::IMatrix2Matrix(){
 	//没有边的值为0
@@ -173,11 +183,14 @@ inline void Graph::IENode2Matrix(){
 	//如果点间没有边,则将其矩阵值设为0,
 	//对角线值为0,其他值根据输入的边集确定
 	for(int i=0;i<VMax;i++)
-	for(int j=0;j<VMax;j++)
-		Matrix[i][j]=0;
+		for(int j=0;j<VMax;j++)
+			Matrix[i][j]=0;
 	for(int i=1;i<=Elen;i++){
 		Matrix[IENode[i].a][IENode[i].b]=IENode[i].w;
 	}
+	if(direction==0)
+		for(int i=1;i<=Elen;i++)
+			Matrix[IENode[i].b][IENode[i].a]=IENode[i].w;
 	for(int i=1;i<=Vlen;i++)Matrix[i][i]=0;
 }
 void Graph::setup(){
@@ -186,7 +199,7 @@ void Graph::setup(){
 		GNode e;
 		e.end=IENode[i].b;
 		e.weight=IENode[i].w;
-		map[start].push_back(e);
+		map[start].push_front(e);
 	}
 }
 void Graph::BFS(){
@@ -196,7 +209,7 @@ void Graph::BFS(){
 		int i = V.front();
 		V.pop();
 		cout<<i<<" ";
-		for(vector <GNode>::iterator j=map[i].begin();j<map[i].end();j++){
+		for(list <GNode>::iterator j=map[i].begin();j!=map[i].end();advance(j,1)){
 			int temp = (*j).end;
 			if(VNode[temp].color==-1){
 				V.push(temp);
@@ -216,7 +229,7 @@ void Graph::DFS(){
 void Graph::SubDFS(int i){
 	cout<<i<<" ";
 	VNode[i].color=0;
-	for(vector <GNode>::iterator j=map[i].begin();j<map[i].end();j++){
+	for(list <GNode>::iterator j=map[i].begin();j!=map[i].end();advance(j,1)){
 		if(VNode[(*j).end].color==-1)
 			SubDFS((*j).end);
 		VNode[(*j).end].color=1;
@@ -270,14 +283,16 @@ void Graph::Dijkstra(int n){
 	//得到源点n到其他各点的最短距离和路径	
 	VNode[n].color=0;
 	VNode[n].d=0;
-	for(vector <GNode>::iterator j=map[n].begin();j<map[n].end();j++){
+	for(list <GNode>::iterator j=map[n].begin();j!=map[n].end();advance(j,1)){
 		//用邻接表将与源点直接相连的点距离刷新 
 		VNode[(*j).end].d=(*j).weight;
 		VNode[(*j).end].parent=n;
+		VNode[(*j).end].color = -1;
 	}		
 	int t =DijkstraFindAvailableShortest(n);
+	cout<<"F :"<<t<<endl;
  	while(t!=-1){
- 		for(vector <GNode>::iterator j=map[t].begin();j<map[t].end();j++){
+ 		for(list <GNode>::iterator j=map[n].begin();j!=map[n].end();advance(j,1)){
 		 	int point = (*j).end;
 		 	if(VNode[point].d<0){
 	 			VNode[point].d=VNode[t].d+(*j).weight;
@@ -303,6 +318,7 @@ inline int Graph::DijkstraFindAvailableShortest(int n){
 	}
 	if(t!=-1)
 		VNode[t].color=0;
+	cout<<"t: "<<t<<endl;
 	return t;
 }
 void Graph::Floyd(){
@@ -383,21 +399,28 @@ void Graph::binaryMaximumMatch(){
 	
 }
 void Graph::show(){
-	cout<<"Vlen:"<<Vlen<<endl;
-	cout<<"Elen:"<<Elen<<endl;
-	//cout<<"IMatirix:"<<endl;
+//	cout<<"Vlen:"<<Vlen<<endl;
+//	cout<<"Elen:"<<Elen<<endl;
+//	cout<<"Matirix:"<<endl;
+//	for(int i=1;i<=Vlen;i++){
+//		for(int j=1;j<=Vlen;j++)
+//			cout<<Matrix[i][j]<<" ";
+//		cout<<endl;
+//	}
+//	cout<<endl;
+//	cout<<"IMatirix:"<<endl;
 //	for(int i=1;i<=Vlen;i++){
 //		for(int j=1;j<=Vlen;j++)
 //			cout<<IMatrix[i][j]<<" ";
 //		cout<<endl;
 //	}
 //	cout<<endl;
-	cout<<"network:"<<endl;
-	for(int i=1;i<=Vlen;i++){
-		for(int j=1;j<=Vlen;j++)
-			cout<<networkMap[i][j]<<" ";
-		cout<<endl;
-	}
+//	cout<<"network:"<<endl;
+//	for(int i=1;i<=Vlen;i++){
+//		for(int j=1;j<=Vlen;j++)
+//			cout<<networkMap[i][j]<<" ";
+//		cout<<endl;
+//	}
 //	cout<<endl;
 //	cout<<"IENode:"<<endl;
 //	for(int i=1;i<=Elen;i++){
@@ -409,21 +432,28 @@ void Graph::show(){
 //		ENode[i].show();
 //	}
 //	cout<<endl;
-//for(int i=1;i<=Vlen;i++)
-//cout<<VNode[i].d<<" ";
-//cout<<endl;
+	for(int i=1;i<=Vlen;i++)
+		cout<<VNode[i].d<<" ";
+	cout<<endl;
 //for(int i=1;i<=Vlen;i++)
 //cout<<VNode[i].parent<<" ";
 //cout<<endl;
+//	cout<<"map:"<<endl;
+//	for(int i=1;i<=Vlen;i++){
+//		cout<<i<<": ";
+//		for(list<GNode>::iterator j=map[i].begin();j!=map[i].end();advance(j,1))
+//			cout<<"->"<<(*j).end<<" "<<(*j).weight<<" ";
+//		cout<<endl;
+//	}
 }
 int main(){	
 	int len;
 	cin>>len;
 	Graph a;
 	a.inputIENode(len);
-	a.IENode2Matrix();
-	a.setnetworkMap();
-	a.EdmondKarp(1,6);
+	a.IENode2ENode();
+	a.setup();
+	a.Dijkstra(1);
 	a.show();
 	return 0;
 }
