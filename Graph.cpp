@@ -13,12 +13,14 @@
 #include<algorithm>
 using namespace std;
 
-
-const int EMax=1024;//EMax表示数组的最大边界 
+//EMax是用邻接表或边集表示的最大边数
+//VMax是用邻接矩阵表示的最大节点数
+//Max是可能出现的最大权值
+const int EMax=1024;
 const int VMax=200;
-const int Max=999999;//Max表示可能出现的最大数值 
+const int Max=999999;
 int A[EMax][4];
-
+//Set是当前实现的一个简陋的"并查集",暂时还不打算用其他数据结构来优化
 class Set{
 	private:
 		int S[EMax],len;
@@ -49,26 +51,36 @@ void Set::show(){
 	cout<<S[i]<<' ';
 }
 
-
+//GNode是邻接表中的节点.存储的此条"有向边"的终点和权值
 class GNode{
-	//此为邻接表中的节点 
 	public:
 		int end,weight;
 };
+//Node是一个抽象意义上的点,具体意思根据不同算法来理解
 class Node{
 	public:
 		int color,d,parent;
 		Node(){
-			//Dijkstra算法中,color=-1表示未确定到源点最短距离的点集
-			//,color=0表示已确定的点集,d表示到源点的距离,d=-1表示源
-			//点不可达,parent表示单源最短路径的前驱
-			//搜索中,color=-1表示当前未知的点,color=0表示当前正在处
-			//理的点,color=1表示处理完成的点 
+			/*
+				Dijkstra算法中:
+					color=-1表示还没有对该点的所有关联点"松弛"刷新(参见算法导论)
+					color=0表示已经刷新了其所有关联点;也就是<算法导论>中集合S和Q
+					d是在当前状态下,距离源点n的距离
+					parent是当前造成距离d的路径中的上一个节点
+			*/
+			/*
+				搜索中,color=-1表示当前未知的点,color=0表示当前正在处
+					理的点,color=1表示处理完成的点 
+			*/
 			color=-1;
 			d=-1;
 			parent=-1;
 		}
 };
+bool operator <(Node a,Node b){
+	return a.d<b.d;
+}
+//Edge是边.存储了边的起点,终点和权值
 class Edge{
 	public:
 		int a,b,w;
@@ -77,36 +89,64 @@ class Edge{
 			cout<<'('<<a<<' '<<b<<' '<<w<<')'<<endl;
 		};
 };
-
+//重点,图
 class Graph{
 	private:
+		/*
+			direction = 0 表示无向图,=1表示有向图.默认构造的是有向图
+			ENode,Matrix和map分别是图的三种表示方法:边集,邻接矩阵和邻接表
+			IENode,IMatrix是用户输入边集和邻接矩阵暂存的容器.部分算法需要
+			直接修改邻接矩阵或者邻接表时修改的就是这两个.以达到隔离真正的
+			邻接矩阵和邻接表的效果.
+			networkMap是网络流算法需要的邻接矩阵的一个拷贝
+			matchMap是二分图匹配算法需要的邻接矩阵的一个拷贝(相关算法未完成)
+			V是广度优先搜索暂存节点的队列
+		*/
 		int Elen,Vlen;
-		bool direction;//0表示无向图,1表示有向图 
+		bool direction;
 		Node VNode[VMax];
+		Edge IENode[EMax];
 		Edge ENode[EMax];	
-		list <GNode> map[VMax];		
+		list <GNode> map[VMax];	
+		int IMatrix[VMax][VMax];	
 		int Matrix[VMax][VMax];
 		int networkMap[VMax][VMax];	
 		int matchMap[VMax][VMax];
 		queue <int> V;
 	public:	
-		int IMatrix[VMax][VMax];
-		Edge IENode[EMax];
+		/*
+			inputIMatrix()和inputIENode()如前面所说,是类与用户交互的接口
+			inputIMatrix的参数是邻接矩阵的大小,也就是节点数
+			inputIENode的参数是边的条数,第二个默认参数是有向or无向图的标记
+				通过输入边集来构图时,并不知道节点的个数.这里用到了calVNodeNum()
+				其第一个参数就是IENode,第二个参数边数
+			IMatrix2Matrix(),IMatrix2ENode(),IENode2ENode()和IENode2Matrix()
+				如名字所示,是通过IENode或IMatrix构造真正的ENode和Matrix的函数
+			setup() 通过边集构造邻接表
+			BFS()基于邻接表和队列V的广搜
+			DFS()基于邻接表的深搜
+			topogySort() 基于邻接矩阵的拓扑排序.要求有向无环图.
+			Kruskal()基于边集的最小生成树算法
+			Dijkstra() 单源最短路径算法;不支持负权;最后距离源点n的最短距离保存在VNode中
+				DEmpty()和DMin() Dijkstra()需要的子函数.具体参考<算法导论>
+			Floyd() 基于邻接矩阵,支持负权,求任意两点最短路径算法
+		*/
 		inline void inputIMatrix(int len);		
 		inline void inputIENode(int len,int dic);
+		inline int calVNodeNum(Edge A[EMax],int len);
 		inline void IMatrix2Matrix();
 		inline void IMatrix2ENode();
 		inline void IENode2ENode();
 		inline void IENode2Matrix();
-		inline int calVNodeNum(Edge A[EMax],int len);
-		void setup();//构造成邻接表	
+		void setup();
 		void BFS();
 		void DFS();
 		void SubDFS(int i);
 		void topogySort();
 		void Kruskal();
 		void Dijkstra(int n);
-		inline int DijkstraFindAvailableShortest(int n);
+		inline bool DEmpty();
+		inline int DMin();
 		void Floyd();
 		inline void setnetworkMap();
 		void EdmondKarp(int start,int end);
@@ -116,7 +156,6 @@ class Graph{
 		void show();	
 };
 bool cmp(Edge a,Edge b){
-
 	return a.w<b.w;
 }
 inline int Graph::calVNodeNum(Edge A[EMax],int len){
@@ -128,7 +167,7 @@ inline int Graph::calVNodeNum(Edge A[EMax],int len){
 	return V.size();
 }
 inline void Graph::inputIMatrix(int len){
-	//这里的len表示点的个数,点之间无边用0表示
+	//len表示点数
 	Vlen=len;
 	for(int i=1;i<=len;i++)
 		for(int j=1;j<=len;j++){
@@ -136,7 +175,7 @@ inline void Graph::inputIMatrix(int len){
 		}
 }
 inline void Graph::inputIENode(int len,int dic=1){
-	//len表示边的条数,默认dic为1,也就是有向图 
+	//len表示边的条数
 	Elen=len;
 	direction = dic;
 	int maxx=-1;
@@ -236,7 +275,6 @@ void Graph::SubDFS(int i){
 	}
 }
 void Graph::topogySort(){
-	//通过邻接矩阵拓扑排序,有向无环图;
 	for(int i=1;i<=Vlen;i++)
 		for(int j=1;j<=Vlen;j++)
 			//这里将有向边值(不管权值是多少)设置为1,邻接矩阵中没有边的设置为0
@@ -262,6 +300,7 @@ void Graph::topogySort(){
 		}
 	}
 }
+
 void Graph::Kruskal(){
 	//无向图
 	int k=0;
@@ -279,47 +318,37 @@ void Graph::Kruskal(){
 		}
 	}
 }
-void Graph::Dijkstra(int n){
-	//得到源点n到其他各点的最短距离和路径	
-	VNode[n].color=0;
-	VNode[n].d=0;
-	for(list <GNode>::iterator j=map[n].begin();j!=map[n].end();advance(j,1)){
-		//用邻接表将与源点直接相连的点距离刷新 
-		VNode[(*j).end].d=(*j).weight;
-		VNode[(*j).end].parent=n;
-		VNode[(*j).end].color = -1;
-	}		
-	int t =DijkstraFindAvailableShortest(n);
-	cout<<"F :"<<t<<endl;
- 	while(t!=-1){
- 		for(list <GNode>::iterator j=map[n].begin();j!=map[n].end();advance(j,1)){
-		 	int point = (*j).end;
-		 	if(VNode[point].d<0){
-	 			VNode[point].d=VNode[t].d+(*j).weight;
-	 			VNode[point].parent=t;
-	 		}else if(VNode[point].d>0){
-		 		if((VNode[point].d)>(VNode[t].d+(*j).weight)){
-		 			VNode[point].d=VNode[t].d+(*j).weight;
-		 			VNode[point].parent=t;
-		 		}
-		 	}	
-		 }
-		 t=DijkstraFindAvailableShortest(n);
- 	}
+inline bool Graph::DEmpty(){
+	for(int i=1;i<=Vlen;i++)
+		if(VNode[i].color==-1)
+			return false;
+	return true;
 }
-inline int Graph::DijkstraFindAvailableShortest(int n){
-	//返回未确定集合中源点最近的可到达的点,没有时返回-1 
-	int t=-1,minn=Max;
-	for(int i=1;i<=Vlen;i++){
-		if(VNode[i].color==-1&&VNode[i].d>0&&VNode[i].d<minn){
-			minn=VNode[i].d;
-			t=i;
+inline int Graph::DMin(){
+	int minIndex = Vlen+5;
+	int minn = Max;
+	for(int i=1;i<=Vlen;i++)
+		if(VNode[i].color==-1&&VNode[i].d<minn){
+			minn = VNode[i].d;
+			minIndex = i;
+		}
+	return minIndex;
+}
+void Graph::Dijkstra(int n){
+	for(int i=1;i<=Vlen;i++)
+		VNode[i].d = Max;
+	VNode[n].d=0;
+	while(!DEmpty()){
+		int u = DMin();
+		VNode[u].color = 0;
+		for(list<GNode>::iterator j=map[u].begin();j!=map[u].end();advance(j,1)){
+			int point = (*j).end;
+			if(VNode[point].d>VNode[u].d+(*j).weight){
+				VNode[point].d = VNode[u].d+(*j).weight;
+				VNode[point].parent = u;
+			}
 		}
 	}
-	if(t!=-1)
-		VNode[t].color=0;
-	cout<<"t: "<<t<<endl;
-	return t;
 }
 void Graph::Floyd(){
 	int tempMatrix[VMax][VMax];//tempMatrix是很有必要的... 
