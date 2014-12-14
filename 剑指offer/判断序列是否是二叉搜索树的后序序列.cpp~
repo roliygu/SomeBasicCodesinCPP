@@ -1,0 +1,10 @@
+#include<iostream>
+using namespace std;
+
+
+bool Check(int* num, int len, int )
+
+int main(){
+	
+	return 0;
+} 
